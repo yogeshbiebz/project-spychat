@@ -111,7 +111,7 @@ def select_friend():
         print "%d. %s of age %d is online." % (count, temp.name, temp.age)
         count = count+1
     choose_friend = raw_input("Enter the no of friend you want to select.")
-    validate_int(choose_friend)
+    choose_friend = validate_int(choose_friend)
     return choose_friend-1
 
 
@@ -190,7 +190,8 @@ else:
         print("Ah, you're a beginner.\nEvery Professional was once a beginner.")
 while True:
     print("\n1. Add status update.\n2. Add a friend.\n3. Send a secret message.\n4. Read a secret message.\n5. Read Chat History.\n6. Exit")
-    what_to_do = int(raw_input("Choose what you want to do. "))
+    what_to_do = raw_input("Choose what you want to do. ")
+    what_to_do = validate_int(what_to_do)
     while type(what_to_do) != int or 0 < what_to_do > 6:
         what_to_do = int(raw_input("Incorrect Input. "))
     if what_to_do == 1:
