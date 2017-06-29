@@ -4,7 +4,7 @@ from datetime import datetime
 from default_user import Spy
 from steganography.steganography import Steganography
 from default_user import friend1, friend2
-
+from colorama import init, Fore
 
 #    Initializations
 
@@ -20,16 +20,6 @@ class message:
         self.sent_by_me = sent_by_me
         self.time = datetime.now()
         self.length = 0
-
-class BGcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 
 #   FUNCTIONS
@@ -132,7 +122,9 @@ def read_message():
         new_msg = Steganography.decode(filename)
         print "Message is: %s" % new_msg
         if new_msg.find("SOS") > 0 or new_msg.find("Help me") > 0:
+            init(autoreset=True)
             print (BGcolors.WARNING + "Special Attention Required for this message." + BGcolors.ENDC)
+            init(autoreset=False)
         print "Append this message in chat?(Y/N)"
         choice = raw_input("")
         if choice.upper() == "Y":
@@ -151,14 +143,20 @@ def read_message():
 
 
 def read_chat_history():
+    init(autoreset=True)
     whose_history = select_friend()
     for temp in friends[whose_history].chats:
+        temp.time = temp.time.strftime("%d %B %Y")
         if temp.sent_by_me:
-            print ("[" + BGcolors.OKBLUE + str(temp.time) + BGcolors.ENDC + "]" + BGcolors.HEADER + " You Said: " + BGcolors.ENDC + temp.message)
+            print Fore.BLUE + "%s " % temp.time
+            print Fore.RED + "You said:"
+            print "\t" + temp.message
         else:
-            print ("[" + BGcolors.OKBLUE + str(temp.time) + BGcolors.ENDC + "]" + BGcolors.HEADER + friends[whose_history].name + " said: "+  BGcolors.ENDC + temp.message)
-
-
+            print Fore.BLUE + "%s " % temp.time
+            print Fore.RED + "{0} said:" .format(friends[whose_history].name)
+            print "\t" + temp.message
+        init(autoreset=False)
+# (chat.time.strftime("%d %B %Y")
 #   Execution will start from here.
 
 spy_user = Spy('', 0, 0.0)
