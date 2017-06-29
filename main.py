@@ -11,13 +11,33 @@ from default_user import friend1, friend2
 friends = [friend1, friend2]  # Friend List, Initialized empty because no friends right now.
 all_status = ['Available', 'On a mission', 'In meeting'] # 3 Default Statuses Provided.
 
+#   CLASSES
+
+
+class message:
+    def __init__(self, message, sent_by_me):
+        self.message = message
+        self.sent_by_me = sent_by_me
+        self.time = datetime.now()
+        self.length = 0
+
+class BGcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 #   FUNCTIONS
 
 
 def validate_int(value):
     while not str.isdigit(value):
-        age = raw_input("Please enter a number.")
+        value = raw_input("Please enter a number.")
     return int(value)
 
 
@@ -40,17 +60,18 @@ def validate_age(age):
 
 def validate_rating(rate):
     try:
-        float(rate)
-        while rate > 5.0 or rate < 0.0:
+        rate = float(rate)
+        while rate >= 5.0:
             rate = float(raw_input("Incorrect rating value. \nEnter Rating again: "))
-    except ValueError:
+    except:
         rate = raw_input("enter again: ")
         validate_rating(rate)
     return rate
 
 
 def add_status():
-    choice = int(raw_input("Press 1 for new status and 2 for choosing from older ones."))
+    choice = raw_input("Press 1 for new status and 2 for choosing from older ones.")
+    choice = validate_int(choice)
     if choice == 1:
         spy_user.current_status = raw_input("Enter New Status: ")
         all_status.append(spy_user.current_status)
@@ -61,9 +82,14 @@ def add_status():
             count = count + 1
         choose_status = int(raw_input("Enter the no of status which you want to choose."))
         while choose_status > len(all_status):
-            choose_status = raw_input("Enter the no of status which you want to choose.")
+            print len(all_status)
+            choose_status = int(raw_input("Invalid value. Enter again: "))
         spy_user.current_status = all_status[choose_status - 1]
+    else:
+        print "Invalid Input."
+        add_status()
     print "Status updated.\n Current Status - %s" % (spy_user.current_status)
+
 
 
 def add_friends():
@@ -84,54 +110,63 @@ def select_friend():
     for temp in friends:
         print "%d. %s of age %d is online." % (count, temp.name, temp.age)
         count = count+1
-    choose_friend = int(raw_input("Enter the no of friend you want to select."))
+    choose_friend = raw_input("Enter the no of friend you want to select.")
+    validate_int(choose_friend)
     return choose_friend-1
 
 
 def send_message():
     recipient = select_friend()
     new_msg = raw_input("Type your message.")
-    #  ___
     filename = "DIP.jpg"
     out_img = raw_input("Name of image with encoded text: ")
-    new_msg = Steganography.encode(filename,out_img,new_msg)
-    newchat = message(new_msg, True)
-    #  ___
-    friends[recipient].chats.append(newchat)
+    Steganography.encode(filename, out_img, new_msg)
+    new_chat = message(new_msg, True)
+    friends[recipient].chats.append(new_chat)
     print "Message sent."
 
 
 def read_message():
-    sender = select_friend()
     filename = raw_input("File you want to decode: ")
-    new_msg = Steganography.decode(filename)
-    new_chat = message(new_msg, False)
-    friends[sender].chats.append(new_chat)
+    try:
+        new_msg = Steganography.decode(filename)
+        print "Message is: %s" % new_msg
+        if new_msg.find("SOS") > 0 or new_msg.find("Help me") > 0:
+            print (BGcolors.WARNING + "Special Attention Required for this message." + BGcolors.ENDC)
+        print "Append this message in chat?(Y/N)"
+        choice = raw_input("")
+        if choice.upper() == "Y":
+            sender = select_friend()
+            new_chat = message(new_msg, False)
+            new_chat.length = len(new_msg)
+            print new_chat.length
+            if new_chat.length > 100:
+                friends.remove(sender)
+            else:
+                friends[sender].chats.append(new_chat)
+        else:
+            print "Message not appended."
+    except:
+        print "No Message in image."
 
 
 def read_chat_history():
     whose_history = select_friend()
     for temp in friends[whose_history].chats:
         if temp.sent_by_me:
-            print"[%s] %s: %s" % (temp.time.strftime("%d %B %Y"), 'You said:', temp.message)
+            print ("[" + BGcolors.OKBLUE + str(temp.time) + BGcolors.ENDC + "]" + BGcolors.HEADER + " You Said: " + BGcolors.ENDC + temp.message)
         else:
-            print "[%s] %s said: %s" % (temp.time.strftime("%d %B %Y"),temp.name, temp.message)
-#   CLASSES
+            print ("[" + BGcolors.OKBLUE + str(temp.time) + BGcolors.ENDC + "]" + BGcolors.HEADER + friends[whose_history].name + " said: "+  BGcolors.ENDC + temp.message)
 
-
-class message:
-    def __init__(self,message, sent_by_me):
-        self.message = message
-        self.sent_by_me = sent_by_me
-        self.time = datetime.now()
 
 #   Execution will start from here.
 
 spy_user = Spy('', 0, 0.0)
 print("\n\tSpyChat\n")
 print("Continue Anonymously/Default user or Create New user?")
-user = int(raw_input("Press 1 for default user or 2 for new user."))
-while type(user) != int or user > 2 or user < 0:
+user = raw_input("Press 1 for default user or 2 for new user.")
+user = validate_int(user)
+while user > 2 or user < 0:
     user = int(raw_input("Incorrect Input. Enter Again: "))
 if user == 1:
     from default_user import spy_user

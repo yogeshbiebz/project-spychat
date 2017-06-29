@@ -12,4 +12,4 @@ spy_user = Spy('Bond', 31, 4.0)
 
 #   Default friends:
 friend1 = Spy('Harry Potter', 20, 4.2)
-friend2 = Spy('Tom Riddle', 41, 4.0)
+friend2 = Spy('Tom Riddles', 41, 4.0)
